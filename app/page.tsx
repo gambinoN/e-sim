@@ -1,6 +1,6 @@
 'use client'
 import PackageList from "@/components/PackageList";
-import { useFetchData } from "@/hooks/usefetchdata";
+import { useFetchData } from "@/hooks/useFetchData";
 
 export default function Home() {
 
