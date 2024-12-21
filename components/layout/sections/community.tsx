@@ -1,4 +1,3 @@
-import DiscordIcon from "@/components/icons/discord-icon";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,24 +16,23 @@ export const CommunitySection = () => {
           <Card className="bg-background border-none shadow-none text-center flex flex-col items-center justify-center">
             <CardHeader>
               <CardTitle className="text-4xl md:text-5xl font-bold flex flex-col items-center">
-                <DiscordIcon />
                 <div>
-                  Ready to join this
-                  <span className="text-transparent pl-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
-                    Community?
+                Odaberite savršen
+                <span className="text-transparent pl-2 bg-gradient-to-r from-[#D247BF] to-primary bg-clip-text">
+                    eSIM <br />
                   </span>
+                    plan
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="lg:w-[80%] text-xl text-muted-foreground">
-              Join our vibrant Discord community! Connect, share, and grow with
-              like-minded enthusiasts. Click to dive in! 🚀
+            Izaberite najbolji eSIM plan za vaše potrebe i uživajte u brzom, jednostavnom povezivanju. Pregledajte našu ponudu i pronađite opciju koja vam najviše odgovara! 🚀
             </CardContent>
 
             <CardFooter>
               <Button asChild>
                 <a href="https://discord.com/" target="_blank">
-                  Join Discord
+                  Pogledajte ponudu
                 </a>
               </Button>
             </CardFooter>

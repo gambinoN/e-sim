@@ -13,32 +13,32 @@ interface FAQProps {
 
 const FAQList: FAQProps[] = [
   {
-    question: "Is this template free?",
-    answer: "Yes. It is a free NextJS Shadcn template.",
+    question: "Šta je eSIM i kako funkcioniše?",
+    answer: "eSIM je digitalna SIM kartica koja je ugrađena u vaš uređaj. Omogućava vam da aktivirate mobilne mreže bez potrebe za fizičkom SIM karticom, što olakšava povezivanje i korištenje usluga.",
     value: "item-1",
   },
   {
-    question: "Duis aute irure dolor in reprehenderit in voluptate velit?",
+    question: "Koje su prednosti eSIM-a u odnosu na tradicionalnu SIM karticu?",
     answer:
-      "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sint labore quidem quam consectetur sapiente, iste rerum reiciendis animi nihil nostrum sit quo, modi quod.",
+      "eSIM nudi brojne prednosti, kao što su jednostavna aktivacija, ušteda prostora u uređaju, mogućnost korištenja više mobilnih mreža na jednom uređaju, te lakša promjena operatera ili plana.",
     value: "item-2",
   },
   {
     question:
-      "Lorem ipsum dolor sit amet Consectetur natus dolor minus quibusdam?",
+      "Mogu li koristiti eSIM dok putujem u inostranstvo?",
     answer:
-      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Labore qui nostrum reiciendis veritatis.",
+      "Da, eSIM omogućava globalnu povezanost, pa možete koristiti isti plan za roaming u mnogim zemljama širom svijeta. Nema potrebe za mijenjanjem kartica ili prekomjernim troškovima.",
     value: "item-3",
   },
   {
-    question: "Excepteur sint occaecat cupidata non proident sunt?",
-    answer: "Lorem ipsum dolor sit amet consectetur, adipisicing elit.",
+    question: "Kako mogu promijeniti tarifni plan na eSIM-u?",
+    answer: "Promjena tarifnog plana može se obaviti jednostavno putem aplikacije ili na našem web sajtu. Sve promjene možete napraviti u nekoliko klikova.",
     value: "item-4",
   },
   {
     question:
-      "Enim ad minim veniam, quis nostrud exercitation ullamco laboris?",
-    answer: "consectetur adipisicing elit. Sint labore.",
+      "Da li je moj uređaj kompatibilan sa eSIM-om?",
+    answer: "Većina novijih pametnih telefona i uređaja podržavaju eSIM. Provjerite tehničke specifikacije svog uređaja ili nas kontaktirajte kako bismo provjerili kompatibilnost.",
     value: "item-5",
   },
 ];
@@ -52,7 +52,7 @@ export const FAQSection = () => {
         </h2>
 
         <h2 className="text-3xl md:text-4xl text-center font-bold">
-          Common Questions
+        Često postavljena pitanja
         </h2>
       </div>
 

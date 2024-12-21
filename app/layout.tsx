@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Shadcn - Landing template",
-  description: "Landing template from Shadcn",
+  title: "SimUp - Vaša veza sa svijetom",
+  description: "SimUp - Vaša veza sa svijetom",
 };
 
 export default function RootLayout({
