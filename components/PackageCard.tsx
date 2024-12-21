@@ -58,12 +58,12 @@ const PackageCard: React.FC<PackageProps> = ({
         <CardContent>
           <p className="text-gray-600 mb-4">{description}</p>
           <div className="flex items-center space-x-2 mt-2">
-            <Image
+            {/* <Image
               src={`https://static.redteago.com${locationNetworkList[0].locationLogo}`}
               alt={locationNetworkList[0].locationName}
               width={24}
               height={16}
-            />
+            /> */}
             <span>{locationNetworkList[0].locationName}</span>
           </div>
           <p className="mt-2">
