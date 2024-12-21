@@ -5,6 +5,7 @@ interface PackageListProps {
 }
 
 const PackageList: React.FC<PackageListProps> = ({ packages }) => {
+  console.log(packages)
   return (
     <div className="space-y-4">
       {packages?.map((pkg) => (

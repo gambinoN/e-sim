@@ -32,7 +32,7 @@ export function useFetchData<T>(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'RT-AccessCode': '6d2321e298ff4139b0877847094186cd',
+            'RT-AccessCode': '6d2321e298ff4139b0877847094186cd'
           },
           body: JSON.stringify(memoizedBody),
           credentials: 'include',
