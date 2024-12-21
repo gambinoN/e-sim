@@ -1,161 +1,122 @@
 'use client';
 
-import { HeroSection } from "@/components/layout/sections/hero";
-import PackageList from "@/components/PackageList";
-import { useFetchData } from "@/hooks/useFetchData";
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState, useEffect } from "react";
-import { countryToAlpha2 } from "country-to-iso";
+import PackageList from '@/components/PackageList';
+import { useFetchData } from '@/hooks/useFetchData';
+import { useState, useEffect } from 'react';
+import { getPackages, initializeDatabase, addPackages } from '@/utils/db';
+import { Package } from '@/types/types';
 
 export default function Home() {
-  const [locationCode, setLocationCode] = useState("");
-  const { data, error, loading } = useFetchData<any>("/api/open/package/list", {
-    locationCode: "",
-    type: "",
-    slug: "",
-    packageCode: "",
-    iccid: "",
+  const [localData, setLocalData] = useState<Package[]>([]); // Data from IndexedDB
+  const [combinedData, setCombinedData] = useState<Package[]>([]); // Merged data (DB + API)
+  const [filteredData, setFilteredData] = useState<Package[]>([]); // Data after applying filters
+  const [filters, setFilters] = useState({ location: null, duration: null }); // User filters
+
+  // Fetch data using custom hook
+  const { data: apiData, error, loading } = useFetchData<Package[]>('/api/open/package/list', {
+    locationCode: 'HR',
+    type: '',
+    slug: '',
+    packageCode: '',
+    iccid: '',
   });
 
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [selectedDuration, setSelectedDuration] = useState(null);
-  const [priceRange, setPriceRange] = useState([0, 0]);
-  const [sortBy, setSortBy] = useState("price");
-  const [sortDirection, setSortDirection] = useState("asc");
+  console.log(apiData)
+  // Load data from IndexedDB on component mount
+  useEffect(() => {
+    const fetchDataFromDB = async () => {
+      try {
+        await initializeDatabase(); // Initialize the IndexedDB
+        const dbData = await getPackages(); // Fetch data from IndexedDB
+        setLocalData(dbData); // Set the local data
+        setCombinedData(dbData); // Start with IndexedDB data
+        setFilteredData(dbData); // Initially show all data
+        console.log('Data from IndexedDB:', dbData);
+      } catch (error) {
+        console.error('Error fetching data from IndexedDB:', error);
+      }
+    };
+
+    fetchDataFromDB();
+  }, []);
 
   useEffect(() => {
-    setLocationCode(selectedLocation || "");
-  }, [selectedLocation]);
-
-  useEffect(() => {
-    if (data?.obj?.packageList) {
-      const prices = data.obj.packageList.map((pkg) => pkg.price);
-      setPriceRange([Math.min(...prices), Math.max(...prices)]);
+    if (apiData) {
+      const validPackages = apiData.obj.packageList.filter((pkg: Package) => pkg.packageCode); // Validate API data
+      if (validPackages.length > 0) {
+        console.log('Fetched API Data:', validPackages);
+        setCombinedData((prevData) => {
+          const mergedData = [...prevData, ...validPackages];
+          return Array.from(new Map(mergedData.map((pkg) => [pkg.packageCode, pkg])).values()); // Ensure unique packages
+        });
+        addPackages(validPackages); // Cache fetched data into IndexedDB
+      }
     }
-  }, [data]);
+  }, [apiData]);
 
-  if (loading) return <div>Loading...</div>;
+  // Apply filters when the user selects them
+  useEffect(() => {
+    if (filters.location || filters.duration) {
+      const filtered = combinedData.filter((pkg) => {
+        const locationMatch =
+          !filters.location ||
+          pkg.locationNetworkList.some((loc) => loc.locationCode === filters.location);
+        const durationMatch =
+          !filters.duration || `${pkg.duration} ${pkg.durationUnit}` === filters.duration;
+
+        return locationMatch && durationMatch;
+      });
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(combinedData); // Reset to show all data
+    }
+  }, [filters, combinedData]);
+
+  if (loading && combinedData.length === 0) return <div>Loading...</div>;
   if (error) return <div>Error loading packages</div>;
 
-  // Extract unique filters
-  const uniqueLocations = Array.from(
-    new Set(
-      data?.obj?.packageList?.flatMap((pkg) =>
-        pkg.locationNetworkList.map(
-          (loc) => loc.locationName || loc.locationCode
-        )
-      )
-    )
-  ).filter((location) => location);
-
-  const uniqueDurations = Array.from(
-    new Set(
-      data?.obj?.packageList?.map(
-        (pkg) => `${pkg.duration} ${pkg.durationUnit}`
-      )
-    )
-  );
-
-  // Filtered and sorted packages
-  const filteredPackages = data?.obj?.packageList
-    .filter(
-      (pkg) =>
-        (!selectedLocation ||
-          pkg.locationNetworkList.some(
-            (loc) =>
-              loc.locationName === selectedLocation ||
-              loc.locationCode === selectedLocation
-          )) &&
-        (!selectedDuration ||
-          `${pkg.duration} ${pkg.durationUnit}` === selectedDuration) &&
-        (!priceRange ||
-          (pkg.price >= priceRange[0] && pkg.price <= priceRange[1]))
-    )
-    .sort((a, b) => {
-      if (sortBy === "price")
-        return sortDirection === "asc" ? a.price - b.price : b.price - a.price;
-      if (sortBy === "volume")
-        return sortDirection === "asc" ? a.volume - b.volume : b.volume - a.volume;
-      if (sortBy === "duration")
-        return sortDirection === "asc"
-          ? a.duration - b.duration
-          : b.duration - a.duration;
-      return 0;
-    });
-
   return (
-    <>
-      <div className="p-4">
-        <div className="flex flex-wrap gap-4 mb-6">
-          {/* Location Filter */}
-          <Select
-            onValueChange={(value) =>
-              setSelectedLocation(value === "ALL" ? null : value)
-            }
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Locations</SelectItem>
-              {uniqueLocations.map((location, index) => (
-                <SelectItem key={index} value={location}>
-                  {location}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className="p-4">
+      <div className="filters">
+        <select
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              location: e.target.value === 'ALL' ? null : e.target.value,
+            }))
+          }
+        >
+          <option value="ALL">All Locations</option>
+          {Array.from(
+            new Set(combinedData.flatMap((pkg) => pkg.locationNetworkList.map((loc) => loc.locationCode)))
+          ).map((location, index) => (
+            <option key={index} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
 
-          {/* Duration Filter */}
-          <Select
-            onValueChange={(value) =>
-              setSelectedDuration(value === "ALL" ? null : value)
-            }
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by Duration" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Durations</SelectItem>
-              {uniqueDurations.map((duration, index) => (
-                <SelectItem key={index} value={duration}>
-                  {duration}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Sorting */}
-          <Select onValueChange={(value) => setSortBy(value)}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="price">Price</SelectItem>
-              <SelectItem value="volume">Data Volume</SelectItem>
-              <SelectItem value="duration">Duration</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <button
-            onClick={() =>
-              setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))
-            }
-            className="px-4 py-2 bg-gray-200 rounded"
-          >
-            {sortDirection === "asc" ? "Ascending" : "Descending"}
-          </button>
-        </div>
-
-        {/* Filtered and Sorted Package List */}
-        <PackageList packages={filteredPackages} />
+        <select
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              duration: e.target.value === 'ALL' ? null : e.target.value,
+            }))
+          }
+        >
+          <option value="ALL">All Durations</option>
+          {Array.from(
+            new Set(combinedData.map((pkg) => `${pkg.duration} ${pkg.durationUnit}`))
+          ).map((duration, index) => (
+            <option key={index} value={duration}>
+              {duration}
+            </option>
+          ))}
+        </select>
       </div>
-    </>
+
+      {/* Display filtered data */}
+      <PackageList packages={filteredData} />
+    </div>
   );
 }
