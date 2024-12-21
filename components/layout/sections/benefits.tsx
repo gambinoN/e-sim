@@ -10,28 +10,28 @@ interface BenefitsProps {
 
 const benefitList: BenefitsProps[] = [
   {
-    icon: "Blocks",
-    title: "Build Brand Trust",
+    icon: "Rocket",
+    title: "Brzo postavljanje",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Aktivirajte svoj mobilni plan u samo nekoliko minuta bez čekanja na SIM karticu.",
   },
   {
-    icon: "LineChart",
-    title: "More Leads",
+    icon: "Bolt",
+    title: "Fleksibilnost",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam, natus consectetur.",
+      "Jednostavno mijenjajte operatere bez potrebe za novom karticom.",
   },
   {
-    icon: "Wallet",
-    title: "Higher Conversions",
+    icon: "Shield",
+    title: "Sigurnost",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus consectetur. A odio velit cum aliquam",
+      "Vaš mobilni plan je pohranjen digitalno, što ga čini sigurnijim i zaštićenim od gubitka.",
   },
   {
-    icon: "Sparkle",
-    title: "Test Marketing Ideas",
+    icon: "Leaf",
+    title: "Ekološki prihvatljivo",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. A odio velit cum aliquam. Natus consectetur dolores.",
+      "Smanjite plastični otpad koristeći eSIM, održivo rješenje za budućnost.",
   },
 ];
 
@@ -40,15 +40,13 @@ export const BenefitsSection = () => {
     <section id="benefits" className="container py-24 sm:py-32">
       <div className="grid lg:grid-cols-2 place-items-center lg:gap-24">
         <div>
-          <h2 className="text-lg text-primary mb-2 tracking-wider">Benefits</h2>
+          <h2 className="text-lg text-primary mb-2 tracking-wider">Benefiti</h2>
 
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Your Shortcut to Success
+            Zašto odabrati eSIM?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non
-            ducimus reprehenderit architecto rerum similique facere odit
-            deleniti necessitatibus quo quae.
+          eSIM tehnologija nudi jednostavniji, brži i sigurniji način povezivanja s mrežom, bez potrebe za fizičkom SIM karticom.
           </p>
         </div>
 

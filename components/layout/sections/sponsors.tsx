@@ -11,32 +11,32 @@ interface sponsorsProps {
 
 const sponsors: sponsorsProps[] = [
   {
-    icon: "Crown",
-    name: "Acmebrand",
+    icon: "Rocket",
+    name: "Brzo",
   },
   {
-    icon: "Vegan",
-    name: "Acmelogo",
+    icon: "Lightbulb",
+    name: "Jednostavno",
   },
   {
-    icon: "Ghost",
-    name: "Acmesponsor",
+    icon: "Smartphone",
+    name: "Praktično",
   },
   {
-    icon: "Puzzle",
-    name: "Acmeipsum",
+    icon: "Shield",
+    name: "Sigurno",
   },
   {
-    icon: "Squirrel",
-    name: "Acme",
+    icon: "Brain",
+    name: "Inovativno",
   },
   {
-    icon: "Cookie",
-    name: "Accmee",
+    icon: "Ruler",
+    name: "Fleksibilno",
   },
   {
-    icon: "Drama",
-    name: "Acmetech",
+    icon: "Handshake",
+    name: "Pouzdano",
   },
 ];
 
@@ -44,7 +44,7 @@ export const SponsorsSection = () => {
   return (
     <section id="sponsors" className="max-w-[75%] mx-auto pb-24 sm:pb-32">
       <h2 className="text-lg md:text-xl text-center mb-6">
-        Our Platinum Sponsors
+        Prednosti eSIM-a
       </h2>
 
       <div className="mx-auto">

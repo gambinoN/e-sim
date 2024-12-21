@@ -55,15 +55,12 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <PackageList packages={data?.obj?.packageList}/>
       <SponsorsSection />
       <BenefitsSection />
       <FeaturesSection />
       <ServicesSection />
       <TestimonialSection />
-      <TeamSection />
       <CommunitySection />
-      <PricingSection />
       <ContactSection />
       <FAQSection />
       <FooterSection />
