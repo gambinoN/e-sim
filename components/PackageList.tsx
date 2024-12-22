@@ -5,9 +5,8 @@ interface PackageListProps {
 }
 
 const PackageList: React.FC<PackageListProps> = ({ packages }) => {
-  console.log(packages)
   return (
-    <div className="space-y-4">
+    <div className="grid lg:grid-cols-3 gap-6">
       {packages?.map((pkg) => (
         <PackageCard key={pkg.packageCode} {...pkg} />
       ))}
