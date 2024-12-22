@@ -1,122 +1,140 @@
 'use client';
 
+import Filters from '@/components/Filters';
+import { FooterSection } from '@/components/layout/sections/footer';
 import PackageList from '@/components/PackageList';
+import Pagination from '@/components/Pagination';
 import { useFetchData } from '@/hooks/useFetchData';
-import { useState, useEffect } from 'react';
-import { getPackages, initializeDatabase, addPackages } from '@/utils/db';
 import { Package } from '@/types/types';
+import { fetchPackages, paginateData } from '@/utils/packageUtils';
+import { useState, useEffect } from 'react';
 
-export default function Home() {
-  const [localData, setLocalData] = useState<Package[]>([]); // Data from IndexedDB
-  const [combinedData, setCombinedData] = useState<Package[]>([]); // Merged data (DB + API)
-  const [filteredData, setFilteredData] = useState<Package[]>([]); // Data after applying filters
-  const [filters, setFilters] = useState({ location: null, duration: null }); // User filters
+export default function Pack() {
+  const [localData, setLocalData] = useState<Package[]>([]);
+  const [combinedData, setCombinedData] = useState<Package[]>([]);
+  const [filteredData, setFilteredData] = useState<Package[]>([]);
+  const [paginatedData, setPaginatedData] = useState<Package[]>([]);
+  const [filters, setFilters] = useState({
+    location: [] as string[], 
+    duration: null as string | null,
+    durationRange: null as string | null,
+    volume: null as string | null, 
+    volumeRange: null as string | null,
+    region: null as string | null, 
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loadingState, setLoadingState] = useState(true);
+  const [errorState, setErrorState] = useState<string | null>(null);
 
-  // Fetch data using custom hook
+  const itemsPerPage = 9;
+
   const { data: apiData, error, loading } = useFetchData<Package[]>('/api/open/package/list', {
-    locationCode: 'HR',
+    locationCode: '',
     type: '',
     slug: '',
     packageCode: '',
     iccid: '',
   });
 
-  console.log(apiData)
-  // Load data from IndexedDB on component mount
   useEffect(() => {
-    const fetchDataFromDB = async () => {
+    const initializeData = async () => {
       try {
-        await initializeDatabase(); // Initialize the IndexedDB
-        const dbData = await getPackages(); // Fetch data from IndexedDB
-        setLocalData(dbData); // Set the local data
-        setCombinedData(dbData); // Start with IndexedDB data
-        setFilteredData(dbData); // Initially show all data
-        console.log('Data from IndexedDB:', dbData);
+        setLoadingState(true);
+        const localPackages = await fetchPackages();
+        setLocalData(localPackages);
+        setFilteredData(localPackages)
+
+        if (apiData?.obj?.packageList) {
+          const combined = [...localPackages, ...apiData.obj.packageList];
+          setCombinedData(combined);
+          setFilteredData(combined); 
+        } else {
+          setCombinedData(localPackages);
+          setFilteredData(localPackages);
+        }
       } catch (error) {
-        console.error('Error fetching data from IndexedDB:', error);
+        setErrorState('Failed to fetch data. Please try again later.');
+      } finally {
+        setLoadingState(false);
       }
     };
 
-    fetchDataFromDB();
-  }, []);
-
-  useEffect(() => {
-    if (apiData) {
-      const validPackages = apiData.obj.packageList.filter((pkg: Package) => pkg.packageCode); // Validate API data
-      if (validPackages.length > 0) {
-        console.log('Fetched API Data:', validPackages);
-        setCombinedData((prevData) => {
-          const mergedData = [...prevData, ...validPackages];
-          return Array.from(new Map(mergedData.map((pkg) => [pkg.packageCode, pkg])).values()); // Ensure unique packages
-        });
-        addPackages(validPackages); // Cache fetched data into IndexedDB
-      }
-    }
+    initializeData();
   }, [apiData]);
 
-  // Apply filters when the user selects them
   useEffect(() => {
-    if (filters.location || filters.duration) {
-      const filtered = combinedData.filter((pkg) => {
-        const locationMatch =
-          !filters.location ||
-          pkg.locationNetworkList.some((loc) => loc.locationCode === filters.location);
-        const durationMatch =
-          !filters.duration || `${pkg.duration} ${pkg.durationUnit}` === filters.duration;
-
-        return locationMatch && durationMatch;
+    const filterPackages = () => {
+      return combinedData.filter((pkg) => {
+        const matchesLocation =
+          filters.location.length === 0 ||
+          pkg.locationNetworkList.some((loc) => filters.location.includes(loc.locationName));
+  
+        const matchesRegion =
+          !filters.region || pkg.name.toLowerCase().includes(filters.region.toLowerCase());
+  
+        const matchesDuration = (() => {
+          if (!filters.durationRange) return true; 
+          const [minDuration, maxDuration] = filters.durationRange.split("-").map((val) =>
+            val === "+" ? Number.MAX_SAFE_INTEGER : parseInt(val, 10)
+          );
+          return (
+            pkg.duration >= minDuration && (maxDuration !== undefined ? pkg.duration <= maxDuration : true)
+          );
+        })();
+  
+        const matchesVolume = (() => {
+          if (!filters.volumeRange) return true; 
+          const [minVolume, maxVolume] = filters.volumeRange.split("-").map((val) =>
+            val === "+" ? Number.MAX_SAFE_INTEGER : parseInt(val, 10) * 1024 * 1024 
+          );
+          return (
+            pkg.volume >= minVolume && (maxVolume !== undefined ? pkg.volume <= maxVolume : true)
+          );
+        })();
+  
+        return matchesLocation && matchesRegion && matchesDuration && matchesVolume;
       });
-      setFilteredData(filtered);
-    } else {
-      setFilteredData(combinedData); // Reset to show all data
-    }
-  }, [filters, combinedData]);
+    };
+  
+    const filtered = filterPackages();
+    setFilteredData(filtered);
+    setCurrentPage(1); 
+  }, [filters, combinedData]);  
+  
 
-  if (loading && combinedData.length === 0) return <div>Loading...</div>;
-  if (error) return <div>Error loading packages</div>;
+  useEffect(() => {
+    const paginated = paginateData(filteredData, currentPage, itemsPerPage);
+    setPaginatedData(paginated);
+  }, [filteredData, currentPage]);
+
+  // if (loadingState || loading) {
+  //   return <div className="p-4">Loading...</div>;
+  // }
+
+  if (errorState || error) {
+    return <div className="p-4 text-red-500">{errorState || error?.message}</div>;
+  }
 
   return (
     <div className="p-4">
-      <div className="filters">
-        <select
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              location: e.target.value === 'ALL' ? null : e.target.value,
-            }))
-          }
-        >
-          <option value="ALL">All Locations</option>
-          {Array.from(
-            new Set(combinedData.flatMap((pkg) => pkg.locationNetworkList.map((loc) => loc.locationCode)))
-          ).map((location, index) => (
-            <option key={index} value={location}>
-              {location}
-            </option>
-          ))}
-        </select>
-
-        <select
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              duration: e.target.value === 'ALL' ? null : e.target.value,
-            }))
-          }
-        >
-          <option value="ALL">All Durations</option>
-          {Array.from(
-            new Set(combinedData.map((pkg) => `${pkg.duration} ${pkg.durationUnit}`))
-          ).map((duration, index) => (
-            <option key={index} value={duration}>
-              {duration}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Display filtered data */}
-      <PackageList packages={filteredData} />
+      <Filters
+        packages={combinedData} // Pass combined data to Filters for generating options
+        onFiltersApply={(newFilters) => setFilters((prev) => ({ ...prev, ...newFilters }))}
+      />
+      {filteredData.length === 0 ? (
+        <div className="mt-4">No packages found matching the selected filters.</div>
+      ) : (
+        <>
+          <PackageList packages={paginatedData} />
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredData.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+        </>
+      )}
+      <FooterSection />
     </div>
   );
 }

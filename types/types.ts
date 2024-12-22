@@ -32,3 +32,8 @@ export interface Package {
     supportTopUpType: number,
     locationNetworkList: LocationNetwork[]; // List of networks available for this package
 }
+
+export type FiltersType = {
+    location: string | null;
+    duration: string | null;
+};
