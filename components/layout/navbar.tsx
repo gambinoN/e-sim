@@ -35,19 +35,19 @@ interface FeatureProps {
 
 const routeList: RouteProps[] = [
   {
-    href: "#team",
+    href: "/packages",
     label: "Ponuda",
   },
   {
-    href: "#contact",
+    href: "/kako-instalirati-esim",
     label: "Kako instalirati eSim?",
   },
   {
-    href: "#faq",
+    href: "/sigurnost-placanja",
     label: "Sigurnost plaćanja",
   },
   {
-    href: "#faq",
+    href: "/o-nama",
     label: "O nama",
   },
 ];
