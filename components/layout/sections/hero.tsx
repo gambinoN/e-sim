@@ -45,7 +45,7 @@ export const HeroSection = () => {
               className="w-5/6 md:w-1/4 font-bold"
             >
               <Link
-                href="https://github.com/nobruf/shadcn-landing-page.git"
+                href="/kako-instalirati-esim"
                 target="_blank"
               >
                 Kako aktivirati eSim?
