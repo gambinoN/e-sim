@@ -9,6 +9,7 @@ import UserForm from "@/components/UserForm";
 import PaymentForm from "@/components/PaymentForm";
 import { FooterSection } from "@/components/layout/sections/footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import Script from "next/script";
 
 export default function PackagePage({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -114,6 +115,11 @@ export default function PackagePage({ params }: { params: { slug: string } }) {
   }
 
   return (
+    <>
+  <Script
+    src="https://ipgtest.monri.com/dist/monri.min.js"
+    strategy="afterInteractive"
+  />
     <div className="container mx-auto p-6 space-y-6 mt-10">
       <h1 className="text-3xl font-bold">Plaćanje</h1>
 
@@ -243,5 +249,6 @@ export default function PackagePage({ params }: { params: { slug: string } }) {
 
       <FooterSection />
     </div>
+    </>
   );
 }

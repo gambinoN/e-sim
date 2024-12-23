@@ -27,7 +27,7 @@ export const SecurityAndPayments = () => (
       </p>
       <h3 className="text-2xl font-semibold mt-8">Jednostavna i sigurna kupovina</h3>
       <p>
-        Kupci mogu uživati u sigurnoj i bezbrižnoj kupovini na platformi eSIMFly, znajući da su njihovi podaci zaštićeni i sigurni.
+        Kupci mogu uživati u sigurnoj i bezbrižnoj kupovini na platformi SimUp, znajući da su njihovi podaci zaštićeni i sigurni.
       </p>
     </div>
   </section>

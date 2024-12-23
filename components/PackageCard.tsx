@@ -109,7 +109,9 @@ const PackageCard: React.FC<PackageProps> = ({
             </DialogContent>
           </Dialog>
         </CardFooter>
-        <Button className="mx-3 w-full">Naručite - {(retailPrice * 1.9) / 10000}KM</Button>
+        <Link href={`/package/${slug}`}>
+          <Button className="mx-3 w-full">Naručite - {(retailPrice * 1.9) / 10000}KM</Button>
+        </Link>
       </Card>
     </>
   );
