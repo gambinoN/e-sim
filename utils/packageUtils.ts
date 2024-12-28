@@ -113,3 +113,7 @@ export const paginateData = (
   const startIndex = (currentPage - 1) * itemsPerPage;
   return data.slice(startIndex, startIndex + itemsPerPage);
 };
+
+export function calculatePrice(basePrice: number): string {
+  return ((basePrice / 10000) * 1.9).toFixed(2);
+}

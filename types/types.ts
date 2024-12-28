@@ -1,6 +1,6 @@
 export interface LocationNetwork {
-    locationName: string; // Name of the location
-    locationCode: string; // Code for the location
+    locationName: string; 
+    locationCode: string; 
     locationLogo: string;
     operatorList: operatorType[];
 }
@@ -30,10 +30,18 @@ export interface Package {
     speed: string,
     ipExport: string,
     supportTopUpType: number,
-    locationNetworkList: LocationNetwork[]; // List of networks available for this package
+    locationNetworkList: LocationNetwork[]; 
 }
 
 export type FiltersType = {
     location: string | null;
     duration: string | null;
 };
+
+export interface PackageDetails {
+    name: string;
+    slug: string;
+    price: number;
+    duration: number;
+    image?: string;
+}
