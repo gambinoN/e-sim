@@ -9,18 +9,27 @@ import { Package } from '@/types/types';
 import { fetchPackages, paginateData } from '@/utils/packageUtils';
 import { useState, useEffect } from 'react';
 
+interface ApiPackageResponse {
+  errorCode: number | null;
+  errorMsg: string | null;
+  success: boolean;
+  obj: {
+    packageList: Package[];
+  };
+}
+
 export default function Pack() {
   const [localData, setLocalData] = useState<Package[]>([]);
   const [combinedData, setCombinedData] = useState<Package[]>([]);
   const [filteredData, setFilteredData] = useState<Package[]>([]);
   const [paginatedData, setPaginatedData] = useState<Package[]>([]);
   const [filters, setFilters] = useState({
-    location: [] as string[], 
+    location: [] as string[],
     duration: null as string | null,
     durationRange: null as string | null,
-    volume: null as string | null, 
+    volume: null as string | null,
     volumeRange: null as string | null,
-    region: null as string | null, 
+    region: null as string | null,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingState, setLoadingState] = useState(true);
@@ -28,7 +37,8 @@ export default function Pack() {
 
   const itemsPerPage = 9;
 
-  const { data: apiData, error, loading } = useFetchData<Package[]>({
+  // Update the type parameter for useFetchData
+  const { data: apiData, error, loading } = useFetchData<ApiPackageResponse>({
     locationCode: '',
     type: '',
     slug: '',
@@ -42,12 +52,13 @@ export default function Pack() {
         setLoadingState(true);
         const localPackages = await fetchPackages();
         setLocalData(localPackages);
-        setFilteredData(localPackages)
+        setFilteredData(localPackages);
 
+        // Now we can safely access the nested packageList
         if (apiData?.obj?.packageList) {
           const combined = [...localPackages, ...apiData.obj.packageList];
           setCombinedData(combined);
-          setFilteredData(combined); 
+          setFilteredData(combined);
         } else {
           setCombinedData(localPackages);
           setFilteredData(localPackages);
@@ -112,7 +123,7 @@ export default function Pack() {
   // }
 
   if (errorState || error) {
-    return <div className="p-4 text-red-500">{errorState || error?.message}</div>;
+    return <div className="p-4 text-red-500">{errorState || error}</div>;
   }
 
   return (

@@ -1,5 +1,57 @@
-import { Package } from '@/types/types';
+import { LocationNetwork, Package } from '@/types/types';
 
+type ValidFields = keyof Package;
+type ValidSubfields = keyof LocationNetwork;
+
+export const getUniqueValues = (
+  data: Package[],
+  field: ValidFields,
+  subfield?: ValidSubfields
+): string[] => {
+  if (subfield) {
+    return Array.from(
+      new Set(
+        data.flatMap((pkg) => {
+          const fieldData = pkg[field];
+          if (Array.isArray(fieldData)) {
+            if (subfield === 'operatorList') {
+              // Flatten and map operator lists to operatorName strings
+              return fieldData
+                .flatMap((item: LocationNetwork) => 
+                  item.operatorList.map(op => op.operatorName)
+                );
+            }
+            // Handle other subfields
+            return fieldData.map((item: LocationNetwork) => 
+              String(item[subfield as keyof LocationNetwork])
+            );
+          }
+          return [];
+        }).filter(Boolean)
+      )
+    );
+  }
+  
+  return Array.from(
+    new Set(
+      data.map((pkg) => {
+        const fieldValue = pkg[field];
+        // Type guard to check if the field has a corresponding unit field
+        const hasUnit = (f: ValidFields): f is keyof Package => 
+          `${String(f)}Unit` in pkg;
+        
+        if (hasUnit(field)) {
+          const unitValue = pkg[`${String(field)}Unit` as keyof Package];
+          return fieldValue && unitValue ? `${fieldValue} ${unitValue}` : '';
+        }
+        
+        return fieldValue ? String(fieldValue) : '';
+      }).filter(Boolean)
+    )
+  );
+};
+
+// Rest of your utility functions remain the same
 export const fetchPackages = async (): Promise<Package[]> => {
   try {
     const { initializeDatabase, getPackages } = await import('@/utils/db');
@@ -11,17 +63,16 @@ export const fetchPackages = async (): Promise<Package[]> => {
   }
 };
 
-// Filter packages based on location and duration
 export const filterPackages = (
   data: Package[],
   filters: {
-    location: string[]; // Multiple locations
-    duration: string | null; // Range: "1-7", "30+"
-    volume: string | null; // Range: "500-1000", "5000+"
-    region: string | null; // Name of region in the package name
+    location: string[];
+    duration: string | null;
+    volume: string | null;
+    region: string | null;
   }
 ): Package[] => {
-  console.log("filter", filters)
+  console.log("filter", filters);
   return data.filter((pkg) => {
     const locationMatch =
       filters.location.length === 0 ||
@@ -31,7 +82,7 @@ export const filterPackages = (
       !filters.region || pkg.name.toLowerCase().includes(filters.region.toLowerCase());
 
     const durationMatch = (() => {
-      if (!filters.duration) return true; 
+      if (!filters.duration) return true;
       const [minDuration, maxDuration] = filters.duration.split("-").map((val) =>
         val === "+" ? Number.MAX_SAFE_INTEGER : parseInt(val, 10)
       );
@@ -41,9 +92,9 @@ export const filterPackages = (
     })();
 
     const volumeMatch = (() => {
-      if (!filters.volume) return true; 
+      if (!filters.volume) return true;
       const [minVolume, maxVolume] = filters.volume.split("-").map((val) =>
-        val === "+" ? Number.MAX_SAFE_INTEGER : parseInt(val, 10) * 1024 * 1024 // Convert MB to bytes
+        val === "+" ? Number.MAX_SAFE_INTEGER : parseInt(val, 10) * 1024 * 1024
       );
       return (
         pkg.volume >= minVolume && (maxVolume ? pkg.volume <= maxVolume : true)
@@ -62,34 +113,3 @@ export const paginateData = (
   const startIndex = (currentPage - 1) * itemsPerPage;
   return data.slice(startIndex, startIndex + itemsPerPage);
 };
-
-export const getUniqueValues = (
-    data: Package[],
-    field: string,
-    subfield?: string
-  ): string[] => {
-    if (subfield) {
-      return Array.from(
-        new Set(
-          data.flatMap((pkg) => {
-            const fieldData = pkg[field];
-            return Array.isArray(fieldData)
-              ? fieldData.map((item: { [key: string]: string }) => item[subfield])
-              : [];
-          })
-        )
-      );
-    }
-    
-    return Array.from(
-      new Set(
-        data.map((pkg) => {
-          const fieldValue = pkg[field];
-          const unitValue = pkg[`${field}Unit`];
-          // Ensure fieldValue and unitValue exist before concatenating
-          return fieldValue && unitValue ? `${fieldValue} ${unitValue}` : '';
-        }).filter(Boolean) // Remove empty strings
-      )
-    );
-  };
-  

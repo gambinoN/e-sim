@@ -10,12 +10,12 @@ import PaymentForm from "@/components/PaymentForm";
 import { FooterSection } from "@/components/layout/sections/footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import Script from "next/script";
+import Image from "next/image";
 
 export default function PackagePage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
   const { data, error, loading } = useFetchData<any>(
-    "/api/open/package/list",
     {
       locationCode: "",
       type: "",
@@ -146,7 +146,7 @@ export default function PackagePage({ params }: { params: { slug: string } }) {
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <img
+                <Image
                   src={packageDetails.image || "/esim.png"}
                   alt={packageDetails.name}
                   className="w-15 h-10 rounded-md object-cover"

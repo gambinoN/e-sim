@@ -1,30 +1,45 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+// app/api/order-package/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    try {
-      const { transactionId, amount, packageInfoList } = req.body;
+export async function POST(req: NextRequest) {
+  try {
+    const { transactionId, amount, packageInfoList } = await req.json();
 
-      const response = await fetch('https://api.esimaccess.com/api/v1/open/esim/order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'RT-AccessCode': process.env.RT_ACCESS_CODE || '', 
-        },
-        body: JSON.stringify({ transactionId, amount, packageInfoList }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        res.status(200).json(result);
-      } else {
-        res.status(response.status).json({ success: false, errorMsg: result.errorMsg || 'An error occurred' });
-      }
-    } catch (error: any) {
-      res.status(500).json({ success: false, errorMsg: error.message });
+    // Ensure RT_ACCESS_CODE exists in environment variables
+    const accessCode = process.env.RT_ACCESS_CODE;
+    if (!accessCode) {
+      return NextResponse.json(
+        { success: false, errorMsg: 'RT_ACCESS_CODE is not defined in environment variables.' },
+        { status: 500 }
+      );
     }
-  } else {
-    res.status(405).json({ success: false, errorMsg: 'Method not allowed' });
+
+    // Make the external API request
+    const response = await fetch('https://api.esimaccess.com/api/v1/open/esim/order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'RT-AccessCode': accessCode,
+      },
+      body: JSON.stringify({ transactionId, amount, packageInfoList }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return NextResponse.json(result);
+    } else {
+      return NextResponse.json(
+        { success: false, errorMsg: result.errorMsg || 'An error occurred during the order request' },
+        { status: response.status }
+      );
+    }
+  } catch (error: unknown) {
+    // Make sure error is an instance of Error before accessing message
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return NextResponse.json(
+      { success: false, errorMsg },
+      { status: 500 }
+    );
   }
 }
