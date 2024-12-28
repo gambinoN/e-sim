@@ -28,7 +28,7 @@ export default function Pack() {
 
   const itemsPerPage = 9;
 
-  const { data: apiData, error, loading } = useFetchData<Package[]>('/api/open/package/list', {
+  const { data: apiData, error, loading } = useFetchData<Package[]>({
     locationCode: '',
     type: '',
     slug: '',

@@ -7,8 +7,7 @@ interface FetchResult<T> {
 }
 
 export function useFetchData<T>(
-  url: string,
-  body: { 
+  body: {
     locationCode: string;
     type: string;
     slug: string;
@@ -23,19 +22,17 @@ export function useFetchData<T>(
   const memoizedBody = useMemo(() => body, [JSON.stringify(body)]);
 
   useEffect(() => {
-    let isMounted = true; // Prevent state updates if the component is unmounted
+    let isMounted = true; 
 
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(url, {
+        const response = await fetch('/api/fetch-data', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'RT-AccessCode': '6d2321e298ff4139b0877847094186cd'
           },
           body: JSON.stringify(memoizedBody),
-          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -62,9 +59,9 @@ export function useFetchData<T>(
     fetchData();
 
     return () => {
-      isMounted = false; 
+      isMounted = false;
     };
-  }, [url, memoizedBody]); 
+  }, [memoizedBody]);
 
   return { data, error, loading };
 }

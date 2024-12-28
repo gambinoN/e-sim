@@ -14,7 +14,7 @@ interface OrderData {
 
 interface SuccessResponse {
   success: boolean;
-  [key: string]: any; // Extend with additional fields if known
+  [key: string]: any; 
 }
 
 interface ErrorResponse {
@@ -26,7 +26,7 @@ interface ErrorResponse {
  * Custom hook for ordering a package.
  * @returns {Object} - Contains the function to order a package and related states.
  */
-export const useOrderPackage = () => {
+export const useOrderPackage = (): object => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<SuccessResponse | null>(null);
@@ -39,19 +39,18 @@ export const useOrderPackage = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
-
+  
     try {
-      const response = await fetch('/api/open/esim/order', {
+      const response = await fetch('/api/order-package', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'RT-AccessCode': '6d2321e298ff4139b0877847094186cd',
         },
         body: JSON.stringify(orderData),
       });
-
-      const result: SuccessResponse & ErrorResponse = await response.json();
-
+  
+      const result = await response.json();
+  
       if (response.ok && result.success) {
         setSuccess(result);
       } else {
@@ -62,7 +61,7 @@ export const useOrderPackage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return { orderPackage, loading, error, success };
 };

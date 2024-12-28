@@ -18,10 +18,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
-    ],
-    domains: [
-      'static.redteago.com',
-      'avatars.githubusercontent.com',
+      {
+        protocol: "https",
+        hostname: "static.redteago.com",
+      },
     ],
   },
   async rewrites() {
@@ -30,7 +30,7 @@ const nextConfig = {
         source: '/api/:path*',  
         destination: 'https://api.esimaccess.com/api/v1/:path*',  
       },
-    ]
+    ];
   },
 };
 
